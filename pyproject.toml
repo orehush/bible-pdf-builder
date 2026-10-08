@@ -1,0 +1,19 @@
+[project]
+name = "bible-pdf-builder"
+version = "0.1.0"
+description = "Build print-ready HTML and PDF editions of Bible translations"
+authors = [{ name = "Bible PDF Builder contributors" }]
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = ["beautifulsoup4>=4.13.5,<5.0.0"]
+scripts = { kulish-render-html = "kulish.scripts.render_html:main", kulish-render-pdf = "kulish.scripts.render_pdf:main" }
+
+[tool.poetry]
+packages = [{ include = "kulish", from = "src" }]
+include = [
+    { path = "src/kulish/styles/styles.css", format = ["sdist", "wheel"] },
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

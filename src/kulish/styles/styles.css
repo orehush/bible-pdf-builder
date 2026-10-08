@@ -1,0 +1,302 @@
+@page frontmatter {
+    size: 125mm 176mm;
+    margin: 12mm 10mm 13mm 10mm;
+    @top-left { content: normal; }
+    @top-center { content: normal; }
+    @top-right { content: normal; }
+    @bottom-left { content: normal; }
+    @bottom-center { content: normal; }
+    @bottom-right { content: normal; }
+}
+
+@page main {
+    size: 125mm 176mm;
+    margin-top: 12mm;
+    margin-bottom: 13mm;
+    margin-left: 8.5mm;
+    margin-right: 8.5mm;
+
+    @top-center {
+        content: prince-script(page_header, string(bookhead), string(chapterhead, first), string(chapterhead, last));
+        font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+        font-size: 6.8pt;
+        letter-spacing: .02em;
+        padding-bottom: 1.5mm;
+    }
+
+    @footnote {
+        border-top: .35pt solid #555;
+        margin-top: 2.2mm;
+        padding-top: 1.6mm;
+        margin-left: 3mm;
+        margin-right: 3mm;
+    }
+}
+
+@page main:left {
+    margin-left: 10mm;
+    margin-right: 7.5mm;
+    @top-left {
+        content: counter(page);
+        font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+        font-size: 6.8pt;
+        padding-bottom: 1.5mm;
+    }
+    @bottom-left { content: none; }
+    @bottom-right { content: none; }
+}
+
+@page main:right {
+    margin-left: 7.5mm;
+    margin-right: 10mm;
+    @top-right {
+        content: counter(page);
+        font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+        font-size: 6.8pt;
+        padding-bottom: 1.5mm;
+    }
+    @bottom-left { content: none; }
+    @bottom-right { content: none; }
+}
+
+html, body { margin: 0; padding: 0; }
+
+body {
+    font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+    font-size: 8.15pt;
+    line-height: 1.10;
+    color: #111;
+    hyphens: auto;
+}
+
+.front-page {
+    page: frontmatter;
+    box-sizing: border-box;
+    height: 151mm;
+    break-after: page;
+}
+
+.front-title-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 18pt;
+    line-height: 1.35;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.front-toc-page { padding-top: 1mm; }
+
+.front-toc-title {
+    text-align: center;
+    font-size: 11pt;
+    line-height: 1.1;
+    font-weight: 600;
+    margin: 0 0 3mm;
+    text-transform: uppercase;
+}
+
+.toc-columns {
+    display: flex;
+    gap: 5mm;
+    align-items: flex-start;
+}
+
+.toc-column {
+    width: calc(50% - 2.5mm);
+    font-size: 5.9pt;
+    line-height: 1.13;
+}
+
+.toc-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8mm 8mm;
+    column-gap: 1.2mm;
+    align-items: baseline;
+    break-inside: avoid;
+    margin: 0 0 .65mm;
+}
+
+.toc-header {
+    font-weight: 600;
+    border-bottom: .3pt solid #777;
+    padding-bottom: .7mm;
+    margin-bottom: 1mm;
+}
+
+.toc-name { min-width: 0; }
+
+.toc-name a,
+.toc-page-number a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.toc-chapters,
+.toc-page-number {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.toc-page-number a::after { content: target-counter(attr(href), page); }
+
+.old-testament-end-rule {
+    column-span: all;
+    border-top: .5pt solid #444;
+    margin: 3mm 6mm 0;
+    height: 0;
+}
+
+.nt-front-start { break-before: page; }
+
+.print-book {
+    page: main;
+    break-before: page;
+    column-count: 2;
+    column-gap: 5.2mm;
+    column-rule: .35pt solid #777;
+    column-fill: balance;
+}
+
+#print-book-GEN { break-before: auto; }
+#print-book-MAT { break-before: auto; }
+
+.running-book-title {
+    string-set: bookhead content();
+    height: 0;
+    overflow: hidden;
+    font-size: 0;
+    line-height: 0;
+}
+
+.book-opening {
+    column-span: all;
+    text-align: center;
+    font-size: 12pt;
+    line-height: 1.1;
+    font-weight: 600;
+    margin: 0 0 4mm;
+    break-after: avoid;
+}
+
+.book-title-note-mark {
+    font-size: 6pt;
+    line-height: 0;
+    vertical-align: super;
+    font-weight: normal;
+    margin-left: .2mm;
+}
+
+.chapter-start {
+    display: block;
+    margin: 2mm 0 1.2mm;
+    break-after: avoid;
+}
+
+.chapter-visible {
+    display: block;
+    text-align: center;
+    font-weight: 600;
+    font-size: 8.7pt;
+    line-height: 1.05;
+}
+
+.chapter-page-marker {
+    string-set: chapterhead content();
+    font-size: 0;
+    line-height: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.verse-line {
+    display: block;
+    margin: 0 0 .55mm 0;
+    padding: 0;
+    text-align: justify;
+    text-align-last: left;
+    prince-footnote-policy: keep-with-line;
+}
+
+.verse-no {
+    display: inline-block;
+    min-width: 3.1mm;
+    padding-right: .55mm;
+    font-size: 6.5pt;
+    line-height: 1;
+    font-weight: 600;
+    vertical-align: baseline;
+}
+
+.verse-text { display: inline; }
+.first-verse { margin-top: 0; }
+
+.dropcap {
+    float: left;
+    font-size: 20.5pt;
+    line-height: 16.3pt;
+    font-weight: 600;
+    margin: .2mm .65mm 0 0;
+    padding: 0;
+}
+
+.wj { font-style: normal; }
+
+.source-heading {
+    display: block;
+    text-align: center;
+    font-size: 7pt;
+    font-style: italic;
+    line-height: 1.1;
+    margin: 2mm 1mm 0;
+    break-inside: avoid;
+}
+
+.footnote {
+    float: footnote;
+    font-size: 6.6pt;
+    line-height: 1.08;
+    text-align: left;
+    font-weight: normal;
+}
+
+.title-footnote {
+    float: footnote;
+    text-align: left;
+    font-weight: normal;
+    footnote-display: block;
+}
+
+.title-footnote-anchor::footnote-call {
+    content: attr(data-symbol);
+    font-size: 0.1pt;
+    line-height: 0;
+    color: white;
+    vertical-align: baseline;
+    margin: 0;
+    padding: 0;
+}
+
+.title-footnote-anchor::footnote-marker {
+    content: attr(data-symbol) " ";
+    font-weight: normal;
+}
+
+.footnote::footnote-call {
+    content: attr(data-symbol);
+    font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+    font-size: 5.5pt;
+    line-height: 0;
+    vertical-align: super;
+    margin-left: .2mm;
+}
+
+.footnote::footnote-marker {
+    content: attr(data-symbol) " ";
+    font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+    font-weight: normal;
+}
