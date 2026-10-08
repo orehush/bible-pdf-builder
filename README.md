@@ -22,7 +22,10 @@
 │   ├── scripts/
 │   │   ├── render_html.py      # створення HTML для друку
 │   │   └── render_pdf.py       # запуск PrinceXML
-│   └── styles/styles.css       # стилі верстки Куліша
+│   └── styles/                 # стилі та словник переносів uk для PrinceXML
+│       ├── styles.css
+│       ├── hyph-uk.pat
+│       └── HYPH-UK-NOTICE.txt  # атрибуція шаблонів переносів
 ├── html/                       # згенерований HTML
 └── pdf/                        # згенерований PDF
 ```
@@ -32,7 +35,7 @@
 - Python 3.13 (версія вказана у `.python-version` і обмежена в `pyproject.toml`).
 - [Poetry](https://python-poetry.org/docs/#installation) для керування Python-залежностями.
 - GNU Make для коротких команд з Makefile.
-- PrinceXML для створення PDF. Це окрема програма; Poetry її не встановлює. Команда `prince` має бути доступна в `PATH`.
+- PrinceXML для створення PDF. Це окрема програма; Poetry її не встановлює. Команда `prince` має бути доступна в `PATH`. Українські шаблони переносів для PrinceXML постачаються в `src/kulish/styles/hyph-uk.pat`.
 - Для найкращого відтворення верстки бажано встановити Gentium Book Plus; CSS має запасні шрифти.
 
 ## Встановлення
@@ -81,7 +84,7 @@ poetry run kulish-render-html --help
 poetry run kulish-render-pdf --help
 ```
 
-За замовчуванням для HTML використовується `src/kulish/styles/styles.css`. Інший CSS-файл можна вказати напряму:
+За замовчуванням для HTML використовується `src/kulish/styles/styles.css`, який підключає локальні українські шаблони переносів PrinceXML з `hyph-uk.pat`. Файл і його атрибуція походять із CTAN `hyph-utf8` (MIT); докладніше — у `src/kulish/styles/HYPH-UK-NOTICE.txt`. Інший CSS-файл можна вказати напряму:
 
 ```bash
 poetry run kulish-render-html path/to/source.html --styles path/to/styles.css -o html/output.html

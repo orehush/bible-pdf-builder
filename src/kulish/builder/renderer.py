@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import re
 from pathlib import Path
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
@@ -271,6 +272,28 @@ def render_new_testament_frontmatter(soup: BeautifulSoup, books: list[Tag]) -> s
     return NEW_TESTAMENT_FRONT_MATTER_TEMPLATE.format(toc=toc)
 
 
+def css_with_absolute_resources(css_path: Path) -> str:
+    """Resolve relative CSS url() resources against the stylesheet location."""
+    css = css_path.read_text(encoding="utf-8")
+    base_url = css_path.resolve().as_uri()
+
+    def resolve_url(match: re.Match[str]) -> str:
+        raw_url = match.group("url").strip().strip("\\\"'")
+        if not raw_url or raw_url.startswith(("#", "data:")):
+            return match.group(0)
+        parsed = urlparse(raw_url)
+        if parsed.scheme or raw_url.startswith("//"):
+            return match.group(0)
+        return f'url("{urljoin(base_url, raw_url)}")'
+
+    return re.sub(
+        r"url\(\s*(?P<url>[^)]*?)\s*\)",
+        resolve_url,
+        css,
+        flags=re.IGNORECASE,
+    )
+
+
 def build_html(source: Path, output: Path, css_path: Path) -> None:
     soup = BeautifulSoup(source.read_text(encoding="utf-8"), "html.parser")
     books = soup.select("section.book")
@@ -286,7 +309,7 @@ def build_html(source: Path, output: Path, css_path: Path) -> None:
     )
 
     document = DOCUMENT_TEMPLATE.format(
-        css=css_path.read_text(encoding="utf-8"),
+        css=css_with_absolute_resources(css_path),
         javascript=PAGE_HEADER_SCRIPT,
         body=body,
     )

@@ -61,6 +61,13 @@
 
 html, body { margin: 0; padding: 0; }
 
+:lang(uk) {
+    hyphens: auto;
+    -prince-hyphenate-patterns: url("hyph-uk.pat");
+    -prince-hyphenate-before: 2;
+    -prince-hyphenate-after: 2;
+}
+
 body {
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
     font-size: 8.15pt;

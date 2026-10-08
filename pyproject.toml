@@ -2,7 +2,7 @@
 name = "bible-pdf-builder"
 version = "0.1.0"
 description = "Build print-ready HTML and PDF editions of Bible translations"
-authors = [{ name = "Bible PDF Builder contributors" }]
+authors = [{ name = "Oleksandr Rehush" }]
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = ["beautifulsoup4>=4.13.5,<5.0.0"]
@@ -12,6 +12,8 @@ scripts = { kulish-render-html = "kulish.scripts.render_html:main", kulish-rende
 packages = [{ include = "kulish", from = "src" }]
 include = [
     { path = "src/kulish/styles/styles.css", format = ["sdist", "wheel"] },
+    { path = "src/kulish/styles/hyph-uk.pat", format = ["sdist", "wheel"] },
+    { path = "src/kulish/styles/HYPH-UK-NOTICE.txt", format = ["sdist", "wheel"] },
 ]
 
 [build-system]
