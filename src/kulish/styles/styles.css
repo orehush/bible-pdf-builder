@@ -207,8 +207,9 @@ body {
     display: block;
     text-align: center;
     font-weight: 600;
-    font-size: 8.7pt;
+    font-size: 8.5pt;
     line-height: 1.05;
+    text-transform: uppercase;
 }
 
 .chapter-page-marker {
@@ -222,7 +223,7 @@ body {
 
 .verse-line {
     display: block;
-    margin: 0 0 .55mm 0;
+    margin: 0 0 .2mm 0;
     padding: 0;
     text-align: justify;
     text-align-last: left;
@@ -231,11 +232,12 @@ body {
 
 .verse-no {
     display: inline-block;
-    min-width: 3.1mm;
-    padding-right: .55mm;
-    font-size: 6.5pt;
+    /*min-width: 3.1mm;*/
+    padding-left: 1.5mm;
+    padding-right: .8mm;
+    font-size: 8pt;
     line-height: 1;
-    font-weight: 600;
+    font-weight: 400;
     vertical-align: baseline;
 }
 
