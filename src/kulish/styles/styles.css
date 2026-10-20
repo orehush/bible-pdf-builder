@@ -1,5 +1,5 @@
 @page frontmatter {
-    size: 120mm 190mm;
+    size: 110mm 180mm;
     margin: 13mm 10mm 8mm 10mm;
     @top-left { content: normal; }
     @top-center { content: normal; }
@@ -10,11 +10,13 @@
 }
 
 @page main {
-    size: 120mm 190mm;
+    size: 110mm 180mm;
     margin-top: 13mm;
     margin-bottom: 8mm;
     margin-left: 8.5mm;
     margin-right: 8.5mm;
+
+    counter-reset: footnote 0;
 
     @top-center {
         content: prince-script(page_header, string(bookhead), string(chapterhead, first), string(chapterhead, last));
@@ -70,7 +72,7 @@ html, body { margin: 0; padding: 0; }
 
 body {
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-    font-size: 8.15pt;
+    font-size: 7.5pt;
     line-height: 1.10;
     color: #111;
     hyphens: auto;
@@ -163,7 +165,7 @@ body {
     page: main;
     break-before: page;
     column-count: 2;
-    column-gap: 5.2mm;
+    column-gap: 4mm;
     column-rule: .35pt solid #777;
     column-fill: balance;
 }
@@ -189,12 +191,12 @@ body {
     break-after: avoid;
 }
 
-.book-title-note-mark {
+/* Title label reads the counter at the first-column note anchor. */
+.book-title-note-mark::after {
+    content: target-counter(attr(data-note-target url), footnote);
     font-size: 6pt;
-    line-height: 0;
     vertical-align: super;
     font-weight: normal;
-    margin-left: .2mm;
 }
 
 .chapter-start {
@@ -247,7 +249,7 @@ body {
 .dropcap {
     float: left;
     font-size: 20.5pt;
-    line-height: 16.3pt;
+    line-height: 15pt;
     font-weight: 600;
     margin: .2mm .65mm 0 0;
     padding: 0;
@@ -280,23 +282,18 @@ body {
     footnote-display: block;
 }
 
+/* The first-column title note call is hidden, but its number is
+   displayed by the title marker using target-counter(). */
 .title-footnote-anchor::footnote-call {
-    content: attr(data-symbol);
-    font-size: 0.1pt;
+    content: "";
+    font-size: 0;
     line-height: 0;
-    color: white;
-    vertical-align: baseline;
     margin: 0;
     padding: 0;
 }
 
-.title-footnote-anchor::footnote-marker {
-    content: attr(data-symbol) " ";
-    font-weight: normal;
-}
-
 .footnote::footnote-call {
-    content: attr(data-symbol);
+    content: counter(footnote);
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
     font-size: 5.5pt;
     line-height: 0;
@@ -305,7 +302,8 @@ body {
 }
 
 .footnote::footnote-marker {
-    content: attr(data-symbol) " ";
+    content: counter(footnote) ". ";
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
     font-weight: normal;
+    padding-right: .5mm;
 }
