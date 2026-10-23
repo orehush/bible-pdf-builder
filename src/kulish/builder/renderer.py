@@ -158,7 +158,10 @@ def render_book(book: Tag) -> str:
 
     opening = html.escape(title)
     if note:
-        opening += f'<sup class="book-title-note-mark">{html.escape(note[0])}</sup>'
+        opening += (
+            f'<sup class="book-title-note-mark" '
+            f'data-note-target="#title-footnote-{html.escape(code, quote=True)}"></sup>'
+        )
 
     output = [
         f'<section class="print-book" id="print-book-{html.escape(code)}">',
@@ -169,7 +172,8 @@ def render_book(book: Tag) -> str:
     if note:
         symbol, note_text = note
         output.append(
-            f'<span class="footnote title-footnote title-footnote-anchor" '
+            f'<span id="title-footnote-{html.escape(code, quote=True)}" '
+            f'class="footnote title-footnote title-footnote-anchor" ' 
             f'data-symbol="{html.escape(symbol, quote=True)}">'
             f"{html.escape(note_text)}</span>"
         )
