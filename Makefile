@@ -5,7 +5,7 @@ KULISH_SOURCE ?= sources/bible/kulish_pulyuj_1905_corrected.html
 KULISH_HTML_OUTPUT ?= html/kulish_bible_print.html
 KULISH_PDF_OUTPUT ?= pdf/kulish_bible.pdf
 
-.PHONY: help kulish-render-html kulish-render-pdf
+.PHONY: help kulish-render-html kulish-render-pdf kulish-test-html kulish-test-pdf kulish-test
 
 help:
 	@printf '%s\n' \
@@ -21,3 +21,14 @@ kulish-render-html:
 
 kulish-render-pdf: kulish-render-html
 	poetry run kulish-render-pdf "$(KULISH_HTML_OUTPUT)" --output "$(KULISH_PDF_OUTPUT)"
+
+# Validate rendered output. PDF checks require PrinceXML and PyMuPDF.
+.PHONY: kulish-test-html kulish-test-pdf kulish-test
+
+kulish-test-html: kulish-render-html
+	KULISH_SOURCE="$(KULISH_SOURCE)" KULISH_HTML_OUTPUT="$(KULISH_HTML_OUTPUT)" poetry run python -m unittest discover -s tests -p 'test_generated.py' -k GeneratedHTMLTests -v
+
+kulish-test-pdf: kulish-render-pdf
+	KULISH_SOURCE="$(KULISH_SOURCE)" KULISH_HTML_OUTPUT="$(KULISH_HTML_OUTPUT)" KULISH_PDF_OUTPUT="$(KULISH_PDF_OUTPUT)" poetry run python -m unittest discover -s tests -p 'test_generated.py' -v
+
+kulish-test: kulish-test-pdf
