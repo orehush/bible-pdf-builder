@@ -40,10 +40,14 @@ FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
 # Negative values tighten the gap and may keep the next book on this page;
 # positive values add space and may push the band to the next page.
 # break_before_page forces a new page regardless of available space.
+# separator_previous_page splits the separator from the heading and forces
+# the heading onto a new page. Use with negative heading_spacing_mm to
+# help the separator fit at the end of the preceding page.
 # Example:
 # BOOK_HEADING_LAYOUT = {
 #     "MRK": {"heading_spacing_mm": -2},
 #     "ROM": {"heading_spacing_mm": 3},
 #     "HEB": {"break_before_page": True},
+#     "JOS": {"heading_spacing_mm": -2, "separator_previous_page": True},
 # }
 BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {}
