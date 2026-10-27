@@ -166,11 +166,11 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     output = [
         f'<section class="print-book" id="print-book-{html.escape(code)}">',
         f'<div class="running-book-title">{html.escape(title)}</div>',
+        '<div class="book-heading-band">',
+        *([] if first_in_testament else ['<div class="book-separator" aria-hidden="true"></div>']),
         f'<h1 class="book-opening">{opening}.</h1>',
+        '</div>',
     ]
-
-    if not first_in_testament:
-        output.insert(2, '<div class="book-separator" aria-hidden="true"></div>')
 
     if note:
         symbol, note_text = note
