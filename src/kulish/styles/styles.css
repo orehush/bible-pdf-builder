@@ -171,6 +171,12 @@ body {
 
 .print-book { break-before: auto; break-after: auto; }
 
+.book-heading-band {
+    column-span: all;
+    break-inside: avoid;
+    text-align: center;
+}
+
 .book-separator {
     border-top: .5pt solid #555;
     margin: 3mm 4mm 2mm;
