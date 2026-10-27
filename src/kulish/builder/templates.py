@@ -19,7 +19,7 @@ DOCUMENT_TEMPLATE = """<!doctype html>
 PAGE_HEADER_SCRIPT = r"""
 Prince.addScriptFunc("page_header", function(firstMarker, lastMarker) {
     function unpack(value) {
-        var parts = String(value || "").split("\\u001f");
+        var parts = String(value || "").split("|");
         return {book: (parts[0] || "").trim(), chapter: (parts[1] || "").trim()};
     }
     var first = unpack(firstMarker);
