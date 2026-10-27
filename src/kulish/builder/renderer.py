@@ -173,11 +173,14 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
         '</div>',
     ]
 
+    # Anchor the title footnote inside the first verse, not as a standalone
+    # inline element between the full-width heading and the first chapter.
+    pending_title_note = ""
     if note:
         symbol, note_text = note
-        output.append(
+        pending_title_note = (
             f'<span id="title-footnote-{html.escape(code, quote=True)}" '
-            f'class="footnote title-footnote title-footnote-anchor" ' 
+            f'class="footnote title-footnote title-footnote-anchor" '
             f'data-symbol="{html.escape(symbol, quote=True)}">'
             f"{html.escape(note_text)}</span>"
         )
@@ -204,7 +207,15 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
                 continue
             if "p" in classes:
                 for verse_no, text_html in split_paragraph_into_verses(child):
-                    output.append(render_verse(code, title, chapter_no, verse_no, text_html))
+                    verse_html = render_verse(code, title, chapter_no, verse_no, text_html)
+                    if pending_title_note:
+                        verse_html = verse_html.replace(
+                            '<span class="verse-text">',
+                            '<span class="verse-text">' + pending_title_note,
+                            1,
+                        )
+                        pending_title_note = ""
+                    output.append(verse_html)
             elif "s" in classes:
                 source_heading = clean_spaces(child.get_text(" ", strip=True))
                 if source_heading:
