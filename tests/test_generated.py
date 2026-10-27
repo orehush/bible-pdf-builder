@@ -81,7 +81,9 @@ class GeneratedHTMLTests(unittest.TestCase):
         self.assertIn(".print-testament", css)
         self.assertIn("column-fill: auto", css)
         self.assertIn("column-span: all", css)
-        self.assertIn("float: footnote", css)
+        self.assertIn("float: footnote page", css)
+        self.assertIn("string(versehead, first)", css)
+        self.assertIn("string(versehead, last)", css)
 
     def test_toc_and_headings(self):
         books = self.html.select("section.print-book")
