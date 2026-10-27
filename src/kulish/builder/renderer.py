@@ -171,17 +171,38 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     force_page = layout.get("break_before_page", False)
     if not isinstance(force_page, bool):
         raise ValueError(f"Invalid break_before_page for {code}: {force_page!r}")
+    separator_previous_page = layout.get("separator_previous_page", False)
+    if not isinstance(separator_previous_page, bool):
+        raise ValueError(f"Invalid separator_previous_page for {code}: {separator_previous_page!r}")
+    if separator_previous_page and first_in_testament:
+        raise ValueError(f"No separator before the first book of a testament: {code}")
+
     band_style = f' style="margin-top: {spacing:g}mm"' if spacing else ""
-    book_style = ' style="break-before: page"' if force_page else ""
+    # In split mode the page break belongs to the TITLE, not the book
+    # container: the separator is allowed to remain on the previous page.
+    book_style = ' style="break-before: page"' if force_page and not separator_previous_page else ""
+    heading_style = ' style="break-before: page"' if separator_previous_page else ""
 
     output = [
         f'<section class="print-book" id="print-book-{html.escape(code)}"{book_style}>',
         f'<div class="running-book-title">{html.escape(title)}</div>',
-        f'<div class="book-heading-band"{band_style}>',
-        *([] if first_in_testament else ['<div class="book-separator" aria-hidden="true"></div>']),
+    ]
+    if separator_previous_page:
+        output.extend([
+            f'<div class="book-separator-band"{band_style}>',
+            '<div class="book-separator" aria-hidden="true"></div>',
+            '</div>',
+            f'<div class="book-heading-band"{heading_style}>',
+        ])
+    else:
+        output.extend([
+            f'<div class="book-heading-band"{band_style}>',
+            *([] if first_in_testament else ['<div class="book-separator" aria-hidden="true"></div>']),
+        ])
+    output.extend([
         f'<h1 class="book-opening">{opening}.</h1>',
         '</div>',
-    ]
+    ])
 
     # Anchor the title footnote inside the first verse, not as a standalone
     # inline element between the full-width heading and the first chapter.
