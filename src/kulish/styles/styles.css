@@ -291,7 +291,7 @@ body {
 }
 
 .title-footnote {
-    float: footnote page;
+    float: footnote;
     text-align: left;
     font-weight: normal;
     footnote-display: block;
@@ -299,8 +299,8 @@ body {
 
 /* The first-column title note call is hidden, but its number is
    displayed by the title marker using target-counter(). */
-.title-footnote-anchor::footnote-call {
-    content: none;
+.footnote.title-footnote-anchor::footnote-call {
+    content: "";
     font-size: 0;
     line-height: 0;
     margin: 0;
@@ -324,4 +324,4 @@ body {
 }
 
 /* Carried note is printed in the destination column but has no visible call. */
-.carried-footnote::footnote-call { content: ""; margin: 0; padding: 0; }
+.footnote.carried-footnote::footnote-call { content: ""; font-size: 0; margin: 0; padding: 0; }
