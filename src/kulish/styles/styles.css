@@ -300,7 +300,7 @@ body {
 /* The first-column title note call is hidden, but its number is
    displayed by the title marker using target-counter(). */
 .title-footnote-anchor::footnote-call {
-    content: "";
+    content: none;
     font-size: 0;
     line-height: 0;
     margin: 0;
