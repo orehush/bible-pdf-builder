@@ -27,3 +27,10 @@ OLD_TESTAMENT_CODES = [
     "LAM","EZK","DAN","HOS","JOL","AMO","OBA","JON","MIC","NAM","HAB","ZEP",
     "HAG","ZEC","MAL",
 ]
+
+# Optional manual footnote placement across book boundaries.
+# Key: source book code. Value: destination book code.
+# Moves the final note of the source book to the beginning of the destination
+# book, with a hidden call marker. Leave empty unless PDF inspection confirms
+# the source and destination begin/end on the same physical page.
+FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
