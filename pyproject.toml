@@ -12,6 +12,7 @@ scripts = { kulish-render-html = "kulish.scripts.render_html:main", kulish-rende
 packages = [{ include = "kulish", from = "src" }]
 include = [
     { path = "src/kulish/styles/styles.css", format = ["sdist", "wheel"] },
+    { path = "src/kulish/styles/book_divider.svg", format = ["sdist", "wheel"] },
     { path = "src/kulish/styles/hyph-uk.pat", format = ["sdist", "wheel"] },
     { path = "src/kulish/styles/HYPH-UK-NOTICE.txt", format = ["sdist", "wheel"] },
 ]
