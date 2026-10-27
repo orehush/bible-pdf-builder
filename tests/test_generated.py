@@ -76,9 +76,11 @@ class GeneratedHTMLTests(unittest.TestCase):
                 separator = book.select_one(".book-separator")
                 self.assertIsNotNone(separator, book.get("id"))
                 self.assertIsNotNone(separator.find_next_sibling("h1", class_="book-opening"))
+                self.assertIn("book-heading-band", separator.parent.get("class", []))
         css = self.html.select_one("style").get_text()
         self.assertIn(".print-testament", css)
         self.assertIn("column-fill: auto", css)
+        self.assertIn("column-span: all", css)
         self.assertIn("float: footnote", css)
 
     def test_toc_and_headings(self):
