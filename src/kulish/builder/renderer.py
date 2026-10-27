@@ -131,7 +131,8 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     marker = (
         f'<span class="chapter-page-marker" '
         f'data-book="{html.escape(title, quote=True)}" '
-        f'data-chapter="{html.escape(chapter_no, quote=True)}">'
+        f'data-chapter="{html.escape(chapter_no, quote=True)}" '
+        f'data-header="{html.escape(title + "|" + chapter_no, quote=True)}">'
         f"{html.escape(chapter_no)}</span>"
     )
 
