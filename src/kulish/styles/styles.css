@@ -171,9 +171,14 @@ body {
 
 .print-book { break-before: auto; break-after: auto; }
 
+/* Keep the heading band together with the first chapter and its opening text. */
+.print-book > .chapter-start:first-of-type { break-after: avoid; }
+.book-heading-band + .chapter-start { break-before: avoid; }
+
 .book-heading-band {
     column-span: all;
     break-inside: avoid;
+    break-after: avoid;
     text-align: center;
 }
 
@@ -278,7 +283,7 @@ body {
 }
 
 .footnote {
-    float: footnote page;
+    float: footnote;
     font-size: 6.6pt;
     line-height: 1.08;
     text-align: left;
@@ -317,3 +322,6 @@ body {
     font-weight: normal;
     padding-right: .5mm;
 }
+
+/* Carried note is printed in the destination column but has no visible call. */
+.carried-footnote::footnote-call { content: ""; margin: 0; padding: 0; }
