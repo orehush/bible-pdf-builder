@@ -43,11 +43,14 @@ FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
 # separator_previous_page splits the separator from the heading and forces
 # the heading onto a new page. Use with negative heading_spacing_mm to
 # help the separator fit at the end of the preceding page.
+# hide_separator removes the divider entirely (including its vertical space).
+# It takes precedence over separator_previous_page when both are True.
 # Example:
 # BOOK_HEADING_LAYOUT = {
 #     "MRK": {"heading_spacing_mm": -2},
 #     "ROM": {"heading_spacing_mm": 3},
 #     "HEB": {"break_before_page": True},
+#     "MRK": {"hide_separator": True},
 # }
 BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {
     "JOS": {"separator_previous_page": True},
