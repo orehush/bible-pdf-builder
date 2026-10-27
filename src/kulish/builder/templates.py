@@ -17,29 +17,29 @@ DOCUMENT_TEMPLATE = """<!doctype html>
 """
 
 PAGE_HEADER_SCRIPT = r"""
-Prince.addScriptFunc("page_header", function(book, firstChapter, lastChapter) {
-    book = String(book || "").trim();
-    firstChapter = String(firstChapter || "").trim();
-    lastChapter = String(lastChapter || "").trim();
-
-    if (!firstChapter && !lastChapter) return book;
-    if (!firstChapter) return book + " " + lastChapter;
-    if (!lastChapter || firstChapter === lastChapter) {
-        return book + " " + firstChapter;
+Prince.addScriptFunc("page_header", function(firstMarker, lastMarker) {
+    function unpack(value) {
+        var parts = String(value || "").split("\\u001f");
+        return {book: (parts[0] || "").trim(), chapter: (parts[1] || "").trim()};
     }
-
-    var first = parseInt(firstChapter, 10);
-    var last = parseInt(lastChapter, 10);
-
-    if (!isNaN(first) && !isNaN(last) && last >= first) {
+    var first = unpack(firstMarker);
+    var last = unpack(lastMarker);
+    if (!last.book) last = first;
+    if (!last.book) return "";
+    // Never mix chapter numbers belonging to different books.
+    if (!first.book || first.book !== last.book) {
+        return last.book + (last.chapter ? " " + last.chapter : "");
+    }
+    if (!first.chapter || !last.chapter || first.chapter === last.chapter) {
+        return last.book + (last.chapter ? " " + last.chapter : "");
+    }
+    var from = Number(first.chapter), to = Number(last.chapter);
+    if (Number.isInteger(from) && Number.isInteger(to) && to >= from) {
         var chapters = [];
-        for (var chapter = first; chapter <= last; chapter++) {
-            chapters.push(String(chapter));
-        }
-        return book + " " + chapters.join(", ");
+        for (var n = from; n <= to; n++) chapters.push(String(n));
+        return last.book + " " + chapters.join(", ");
     }
-
-    return book + " " + firstChapter + ", " + lastChapter;
+    return last.book + " " + first.chapter + ", " + last.chapter;
 });
 """
 
