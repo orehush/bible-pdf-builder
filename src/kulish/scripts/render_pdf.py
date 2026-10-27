@@ -51,28 +51,24 @@ def page_start_books(pdf: Path, headings: dict[str, str]) -> set[str]:
 
 
 def suppress_separators(html_text: str, codes: set[str]) -> str:
-    """Hide separator ink in the requested books without changing layout."""
+    """Hide only the separator border; preserve the element and its spacing."""
     for code in codes:
-        # Match only the opening portion of this book. Never cross into the
-        # following book when looking for its separator.
-        opening = re.compile(
-            r'(<section\\b[^>]*\\bid="print-book-' + re.escape(code) +
-            r'"[^>]*>[\\s\\S]*?<div class="book-separator")'
-            r'(?=[\\s\\S]*?</section>)'
-        )
-        match = opening.search(html_text)
-        if match is None:
+        start_marker = f'<section class="print-book" id="print-book-{code}">'
+        start = html_text.find(start_marker)
+        if start < 0:
+            raise RuntimeError(f"Could not locate book {code}")
+        next_book = html_text.find('<section class="print-book"', start + len(start_marker))
+        end = next_book if next_book >= 0 else len(html_text)
+        separator = '<div class="book-separator"'
+        position = html_text.find(separator, start, end)
+        first_chapter = html_text.find('class="chapter-start"', start, end)
+        if position < 0 or (first_chapter >= 0 and position > first_chapter):
             raise RuntimeError(f"Could not locate separator for {code}")
-        # Ensure the separator occurs before the first chapter in this book.
-        start = match.start()
-        end = html_text.find("</section>", start)
-        chapter = html_text.find('class="chapter-start"', start, end)
-        if chapter >= 0 and match.end() > chapter:
-            raise RuntimeError(f"Separator occurs after chapter text for {code}")
+        insert_at = position + len(separator)
         html_text = (
-            html_text[:match.end()]
+            html_text[:insert_at]
             + ' style="border-top-color: transparent"'
-            + html_text[match.end():]
+            + html_text[insert_at:]
         )
     return html_text
 
