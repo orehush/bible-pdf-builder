@@ -188,10 +188,20 @@ body {
 }
 
 .book-separator {
-    border-top: .5pt solid #555;
-    margin: 3mm 4mm 2mm;
-    height: 0;
+    margin: 2mm 4mm 1mm;
+    height: 6mm;
+    text-align: center;
+    color: #333;
+    break-inside: avoid;
     break-after: avoid;
+}
+
+.book-separator-art {
+    display: block;
+    width: 76mm;
+    max-width: 100%;
+    height: 6mm;
+    margin: 0 auto;
 }
 
 .running-book-title {
