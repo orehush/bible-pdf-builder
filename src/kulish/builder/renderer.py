@@ -16,26 +16,13 @@ from .templates import (
 )
 
 
-BOOK_SEPARATOR_SVG = """<svg class="book-separator-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 90" role="presentation" aria-hidden="true">
-<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-<path stroke-width="2.4" d="M22 45H272 M22 49H272 M528 45H778 M528 49H778"/>
-<path stroke-width="3.2" d="M400 47 C375 20 345 25 334 45 C327 61 346 66 354 53 C359 44 349 38 342 44 M400 47 C425 20 455 25 466 45 C473 61 454 66 446 53 C441 44 451 38 458 44"/>
-<path stroke-width="2.7" d="M400 47 C377 60 359 73 330 58 C308 47 297 30 278 43 C267 50 275 61 284 56 C291 52 288 46 282 47 M400 47 C423 60 441 73 470 58 C492 47 503 30 522 43 C533 50 525 61 516 56 C509 52 512 46 518 47"/>
-<path stroke-width="2" d="M393 48 C378 42 371 31 378 20 M407 48 C422 42 429 31 422 20 M389 54 Q377 66 381 75 M411 54 Q423 66 419 75"/>
-</g>
-<g fill="currentColor">
-<path d="M400 8 Q390 25 400 38 Q410 25 400 8Z M400 82 Q390 65 400 52 Q410 65 400 82Z"/>
-<path d="M375 35 Q356 30 358 18 Q368 21 375 35Z M425 35 Q444 30 442 18 Q432 21 425 35Z"/>
-<path d="M369 53 Q348 42 347 30 Q360 34 369 53Z M431 53 Q452 42 453 30 Q440 34 431 53Z"/>
-<path d="M330 58 Q310 69 294 58 Q310 55 330 58Z M470 58 Q490 69 506 58 Q490 55 470 58Z"/>
-<path d="M22 47 Q10 40 8 47 Q10 54 22 47Z M778 47 Q790 40 792 47 Q790 54 778 47Z"/>
-<path d="M29 47 Q17 29 10 34 Q14 45 29 47Z M29 47 Q17 65 10 60 Q14 49 29 47Z M771 47 Q783 29 790 34 Q786 45 771 47Z M771 47 Q783 65 790 60 Q786 49 771 47Z"/>
-<path d="M400 39 l8 8 -8 8 -8 -8Z"/>
-</g></svg>"""
-
-
 def book_separator_html() -> str:
-    return '<div class="book-separator" aria-hidden="true">' + BOOK_SEPARATOR_SVG + '</div>'
+    # Inline the actual approved vector so the generated HTML remains
+    # self-contained and PrinceXML does not need to resolve relative assets.
+    svg_path = Path(__file__).resolve().parent.parent / "styles" / "book_divider.svg"
+    svg = svg_path.read_text(encoding="utf-8")
+    svg = svg.replace("<svg ", '<svg class="book-separator-art" ', 1)
+    return '<div class="book-separator" aria-hidden="true">' + svg + '</div>'
 
 
 def clean_spaces(value: str) -> str:
