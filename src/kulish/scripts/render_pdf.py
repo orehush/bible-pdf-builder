@@ -18,7 +18,7 @@ def normalize(value: str) -> str:
 def page_start_books(pdf: Path, headings: dict[str, str]) -> set[str]:
     """Find headings that are the first body text on their physical page."""
     try:
-        import fitz
+        import pymupdf as fitz
     except ImportError as exc:
         raise SystemExit(
             "Two-pass separator detection needs PyMuPDF: poetry add --group dev pymupdf"
@@ -51,17 +51,29 @@ def page_start_books(pdf: Path, headings: dict[str, str]) -> set[str]:
 
 
 def suppress_separators(html_text: str, codes: set[str]) -> str:
-    """Remove only separator ink; retain its dimensions and pagination."""
+    """Hide separator ink in the requested books without changing layout."""
     for code in codes:
-        pattern = (
-            r'(<section class="print-book" id="print-book-' + re.escape(code) +
-            r'">[\\s\\S]*?<div class="book-separator")'
+        # Match only the opening portion of this book. Never cross into the
+        # following book when looking for its separator.
+        opening = re.compile(
+            r'(<section\\b[^>]*\\bid="print-book-' + re.escape(code) +
+            r'"[^>]*>[\\s\\S]*?<div class="book-separator")'
+            r'(?=[\\s\\S]*?</section>)'
         )
-        html_text, count = re.subn(
-            pattern, r'\\1 style="border-top-color: transparent"', html_text, count=1
-        )
-        if count != 1:
+        match = opening.search(html_text)
+        if match is None:
             raise RuntimeError(f"Could not locate separator for {code}")
+        # Ensure the separator occurs before the first chapter in this book.
+        start = match.start()
+        end = html_text.find("</section>", start)
+        chapter = html_text.find('class="chapter-start"', start, end)
+        if chapter >= 0 and match.end() > chapter:
+            raise RuntimeError(f"Separator occurs after chapter text for {code}")
+        html_text = (
+            html_text[:match.end()]
+            + ' style="border-top-color: transparent"'
+            + html_text[match.end():]
+        )
     return html_text
 
 
