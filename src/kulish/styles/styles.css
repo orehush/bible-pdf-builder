@@ -161,17 +161,22 @@ body {
 
 .nt-front-start { break-before: page; }
 
-.print-book {
+.print-testament {
     page: main;
-    break-before: page;
     column-count: 2;
     column-gap: 4mm;
     column-rule: .35pt solid #777;
-    column-fill: balance;
+    column-fill: auto;
 }
 
-#print-book-GEN { break-before: auto; }
-#print-book-MAT { break-before: auto; }
+.print-book { break-before: auto; break-after: auto; }
+
+.book-separator {
+    border-top: .5pt solid #555;
+    margin: 3mm 4mm 2mm;
+    height: 0;
+    break-after: avoid;
+}
 
 .running-book-title {
     string-set: bookhead content();
@@ -182,7 +187,6 @@ body {
 }
 
 .book-opening {
-    column-span: all;
     text-align: center;
     font-size: 12pt;
     line-height: 1.1;
