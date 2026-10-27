@@ -225,7 +225,7 @@ body {
 }
 
 .chapter-page-marker {
-    string-set: versehead attr(data-book) "\\001F" attr(data-chapter);
+    string-set: versehead attr(data-header);
     font-size: 0;
     line-height: 0;
     width: 0;
@@ -286,7 +286,7 @@ body {
 }
 
 .title-footnote {
-    float: footnote;
+    float: footnote page;
     text-align: left;
     font-weight: normal;
     footnote-display: block;
