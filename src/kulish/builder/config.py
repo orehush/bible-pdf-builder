@@ -53,5 +53,5 @@ FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
 #     "MRK": {"hide_separator": True},
 # }
 BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {
-    "JOS": {"separator_previous_page": True},
+    "JOS": {"hide_separator": True},
 }
