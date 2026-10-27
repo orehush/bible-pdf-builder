@@ -4,7 +4,7 @@ import re
 import unittest
 from pathlib import Path
 from bs4 import BeautifulSoup
-from kulish.builder.config import OLD_TESTAMENT_CODES
+from kulish.builder.config import OLD_TESTAMENT_CODES, FOOTNOTE_CARRY_TO_NEXT_BOOK
 from kulish.builder.renderer import book_code, clean_spaces, split_paragraph_into_verses
 
 SOURCE = Path(os.getenv("KULISH_SOURCE", "sources/bible/kulish_pulyuj_1905_corrected.html"))
@@ -81,7 +81,8 @@ class GeneratedHTMLTests(unittest.TestCase):
         self.assertIn(".print-testament", css)
         self.assertIn("column-fill: auto", css)
         self.assertIn("column-span: all", css)
-        self.assertIn("float: footnote page", css)
+        self.assertIn("float: footnote;", css)
+        self.assertNotIn("float: footnote page", css)
         self.assertIn("string(versehead, first)", css)
         self.assertIn("string(versehead, last)", css)
 
@@ -102,6 +103,9 @@ class GeneratedHTMLTests(unittest.TestCase):
                 self.assertIsNotNone(source_book)
                 self.assertEqual(int(row.select_one(".toc-chapters").get_text(strip=True)), len([c for c in chapters(source_book) if c.select_one(":scope > .chapterlabel")]))
         self.assertEqual(len(books), 66)
+
+    def test_footnote_carry_config(self):
+        self.assertIsInstance(FOOTNOTE_CARRY_TO_NEXT_BOOK, dict)
 
     def test_footnotes(self):
         for book in self.source.select("section.book"):
