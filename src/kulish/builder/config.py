@@ -48,6 +48,7 @@ FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
 #     "MRK": {"heading_spacing_mm": -2},
 #     "ROM": {"heading_spacing_mm": 3},
 #     "HEB": {"break_before_page": True},
-#     "JOS": {"heading_spacing_mm": -2, "separator_previous_page": True},
 # }
-BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {}
+BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {
+    "JOS": {"separator_previous_page": True},
+}
