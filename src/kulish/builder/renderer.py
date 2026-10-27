@@ -151,7 +151,7 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     )
 
 
-def render_book(book: Tag) -> str:
+def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     code = book_code(book)
     title = book_title(book)
     note = title_footnote(book)
@@ -168,6 +168,9 @@ def render_book(book: Tag) -> str:
         f'<div class="running-book-title">{html.escape(title)}</div>',
         f'<h1 class="book-opening">{opening}.</h1>',
     ]
+
+    if not first_in_testament:
+        output.insert(2, '<div class="book-separator" aria-hidden="true"></div>')
 
     if note:
         symbol, note_text = note
@@ -207,9 +210,6 @@ def render_book(book: Tag) -> str:
                     output.append(
                         f'<div class="source-heading">{html.escape(source_heading)}</div>'
                     )
-
-    if code == "MAL":
-        output.append('<div class="old-testament-end-rule"></div>')
 
     output.append("</section>")
     return "".join(output)
@@ -307,9 +307,13 @@ def build_html(source: Path, output: Path, css_path: Path) -> None:
 
     body = (
         render_frontmatter(soup, books)
-        + "\n".join(render_book(book) for book in old_books)
+        + '<div class="print-testament old-testament">'
+        + "\n".join(render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(old_books))
+        + "</div>"
         + render_new_testament_frontmatter(soup, books)
-        + "\n".join(render_book(book) for book in new_books)
+        + '<div class="print-testament new-testament">'
+        + "\n".join(render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(new_books))
+        + "</div>"
     )
 
     document = DOCUMENT_TEMPLATE.format(
