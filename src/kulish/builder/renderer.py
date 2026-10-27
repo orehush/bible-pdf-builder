@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
-from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES, FOOTNOTE_CARRY_TO_NEXT_BOOK
+from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES, FOOTNOTE_CARRY_TO_NEXT_BOOK, BOOK_HEADING_LAYOUT
 from .templates import (
     DOCUMENT_TEMPLATE,
     FRONT_MATTER_TEMPLATE,
@@ -164,10 +164,20 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
             f'data-note-target="#title-footnote-{html.escape(code, quote=True)}"></sup>'
         )
 
+    layout = BOOK_HEADING_LAYOUT.get(code, {})
+    spacing = layout.get("heading_spacing_mm", 0)
+    if isinstance(spacing, bool) or not isinstance(spacing, (int, float)) or not -20 <= spacing <= 40:
+        raise ValueError(f"Invalid heading_spacing_mm for {code}: {spacing!r}")
+    force_page = layout.get("break_before_page", False)
+    if not isinstance(force_page, bool):
+        raise ValueError(f"Invalid break_before_page for {code}: {force_page!r}")
+    band_style = f' style="margin-top: {spacing:g}mm"' if spacing else ""
+    book_style = ' style="break-before: page"' if force_page else ""
+
     output = [
-        f'<section class="print-book" id="print-book-{html.escape(code)}">',
+        f'<section class="print-book" id="print-book-{html.escape(code)}"{book_style}>',
         f'<div class="running-book-title">{html.escape(title)}</div>',
-        '<div class="book-heading-band">',
+        f'<div class="book-heading-band"{band_style}>',
         *([] if first_in_testament else ['<div class="book-separator" aria-hidden="true"></div>']),
         f'<h1 class="book-opening">{opening}.</h1>',
         '</div>',
