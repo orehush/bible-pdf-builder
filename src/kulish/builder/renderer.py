@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
-from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES
+from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES, FOOTNOTE_CARRY_TO_NEXT_BOOK
 from .templates import (
     DOCUMENT_TEMPLATE,
     FRONT_MATTER_TEMPLATE,
@@ -152,7 +152,7 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     )
 
 
-def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
+def render_book(book: Tag, *, first_in_testament: bool = False, carried_note: str = "") -> str:
     code = book_code(book)
     title = book_title(book)
     note = title_footnote(book)
@@ -172,6 +172,9 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
         f'<h1 class="book-opening">{opening}.</h1>',
         '</div>',
     ]
+
+    if carried_note:
+        output.append(carried_note)
 
     if note:
         symbol, note_text = note
@@ -214,6 +217,33 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
 
     output.append("</section>")
     return "".join(output)
+
+
+def render_testament_books(books: list[Tag]) -> str:
+    rendered = [render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(books)]
+    codes = [book_code(book) for book in books]
+    for source, target in FOOTNOTE_CARRY_TO_NEXT_BOOK.items():
+        if source not in codes or target not in codes:
+            raise ValueError(f"Unknown footnote carry boundary: {source} -> {target}")
+        index = codes.index(source)
+        if index + 1 >= len(codes) or codes[index + 1] != target:
+            raise ValueError(f"Footnote carry requires adjacent books: {source} -> {target}")
+        source_soup = BeautifulSoup(rendered[index], "html.parser")
+        notes = source_soup.select(".footnote:not(.title-footnote)")
+        if not notes:
+            raise ValueError(f"No text footnote to carry from {source}")
+        last = notes[-1]
+        # Move the actual note rather than duplicating it: numbering and count stay intact.
+        carried = str(last).replace('class="footnote"', 'class="footnote carried-footnote"', 1)
+        last.decompose()
+        rendered[index] = str(source_soup)
+        target_soup = BeautifulSoup(rendered[index + 1], "html.parser")
+        first_verse = target_soup.select_one(".verse-line .verse-text")
+        if first_verse is None:
+            raise ValueError(f"No destination verse in {target}")
+        first_verse.insert(0, BeautifulSoup(carried, "html.parser"))
+        rendered[index + 1] = str(target_soup)
+    return "\\n".join(rendered)
 
 
 def source_toc_name(soup: BeautifulSoup, code: str, book: Tag) -> str:
@@ -309,11 +339,11 @@ def build_html(source: Path, output: Path, css_path: Path) -> None:
     body = (
         render_frontmatter(soup, books)
         + '<div class="print-testament old-testament">'
-        + "\n".join(render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(old_books))
+        + render_testament_books(old_books)
         + "</div>"
         + render_new_testament_frontmatter(soup, books)
         + '<div class="print-testament new-testament">'
-        + "\n".join(render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(new_books))
+        + render_testament_books(new_books)
         + "</div>"
     )
 
