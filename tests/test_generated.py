@@ -66,6 +66,21 @@ class GeneratedHTMLTests(unittest.TestCase):
                 self.assertIsNone(first.select_one(".verse-no"))
                 self.assertIsNotNone(first.select_one(".dropcap"))
 
+    def test_books_share_column_flow_and_have_separators(self):
+        testaments = self.html.select(".print-testament")
+        self.assertEqual([len(t.select(":scope > .print-book")) for t in testaments], [39, 27])
+        for testament in testaments:
+            books = testament.select(":scope > .print-book")
+            self.assertIsNone(books[0].select_one(".book-separator"))
+            for book in books[1:]:
+                separator = book.select_one(".book-separator")
+                self.assertIsNotNone(separator, book.get("id"))
+                self.assertIsNotNone(separator.find_next_sibling("h1", class_="book-opening"))
+        css = self.html.select_one("style").get_text()
+        self.assertIn(".print-testament", css)
+        self.assertIn("column-fill: auto", css)
+        self.assertIn("float: footnote", css)
+
     def test_toc_and_headings(self):
         books = self.html.select("section.print-book")
         self.assertEqual(len(self.html.select(".book-opening")), 66)
