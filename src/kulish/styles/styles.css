@@ -175,6 +175,11 @@ body {
 .print-book > .chapter-start:first-of-type { break-after: avoid; }
 .book-heading-band + .chapter-start { break-before: avoid; }
 
+.book-separator-band {
+    column-span: all;
+    break-inside: avoid;
+}
+
 .book-heading-band {
     column-span: all;
     break-inside: avoid;
