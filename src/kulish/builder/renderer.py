@@ -180,10 +180,13 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     force_page = layout.get("break_before_page", False)
     if not isinstance(force_page, bool):
         raise ValueError(f"Invalid break_before_page for {code}: {force_page!r}")
+    hide_separator = layout.get("hide_separator", False)
+    if not isinstance(hide_separator, bool):
+        raise ValueError(f"Invalid hide_separator for {code}: {hide_separator!r}")
     separator_previous_page = layout.get("separator_previous_page", False)
     if not isinstance(separator_previous_page, bool):
         raise ValueError(f"Invalid separator_previous_page for {code}: {separator_previous_page!r}")
-    if separator_previous_page and first_in_testament:
+    if separator_previous_page and not hide_separator and first_in_testament:
         raise ValueError(f"No separator before the first book of a testament: {code}")
 
     band_style = f' style="margin-top: {spacing:g}mm"' if spacing else ""
@@ -196,7 +199,7 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
         f'<section class="print-book" id="print-book-{html.escape(code)}"{book_style}>',
         f'<div class="running-book-title">{html.escape(title)}</div>',
     ]
-    if separator_previous_page:
+    if separator_previous_page and not hide_separator:
         output.extend([
             f'<div class="book-separator-band"{band_style}>',
             book_separator_html(),
@@ -206,7 +209,7 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     else:
         output.extend([
             f'<div class="book-heading-band"{band_style}>',
-            *([] if first_in_testament else [book_separator_html()]),
+            *([] if first_in_testament or hide_separator else [book_separator_html()]),
         ])
     output.extend([
         f'<h1 class="book-opening">{opening}.</h1>',
