@@ -152,7 +152,7 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     )
 
 
-def render_book(book: Tag, *, first_in_testament: bool = False, carried_note: str = "") -> str:
+def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     code = book_code(book)
     title = book_title(book)
     note = title_footnote(book)
@@ -172,9 +172,6 @@ def render_book(book: Tag, *, first_in_testament: bool = False, carried_note: st
         f'<h1 class="book-opening">{opening}.</h1>',
         '</div>',
     ]
-
-    if carried_note:
-        output.append(carried_note)
 
     if note:
         symbol, note_text = note
@@ -243,7 +240,7 @@ def render_testament_books(books: list[Tag]) -> str:
             raise ValueError(f"No destination verse in {target}")
         first_verse.insert(0, BeautifulSoup(carried, "html.parser"))
         rendered[index + 1] = str(target_soup)
-    return "\\n".join(rendered)
+    return "\n".join(rendered)
 
 
 def source_toc_name(soup: BeautifulSoup, code: str, book: Tag) -> str:
