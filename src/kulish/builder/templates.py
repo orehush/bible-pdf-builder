@@ -34,7 +34,7 @@ Prince.addScriptFunc("page_header", function(firstMarker, lastMarker) {
         return last.book + (last.chapter ? " " + last.chapter : "");
     }
     var from = Number(first.chapter), to = Number(last.chapter);
-    if (Number.isInteger(from) && Number.isInteger(to) && to >= from) {
+    if (isFinite(from) && isFinite(to) && Math.floor(from) === from && Math.floor(to) === to && to >= from) {
         var chapters = [];
         for (var n = from; n <= to; n++) chapters.push(String(n));
         return last.book + " " + chapters.join(", ");
