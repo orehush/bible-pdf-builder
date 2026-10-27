@@ -19,7 +19,7 @@
     counter-reset: footnote 0;
 
     @top-center {
-        content: prince-script(page_header, string(bookhead), string(chapterhead, first), string(chapterhead, last));
+        content: prince-script(page_header, string(versehead, first), string(versehead, last));
         font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
         font-size: 6.8pt;
         letter-spacing: .02em;
@@ -225,7 +225,7 @@ body {
 }
 
 .chapter-page-marker {
-    string-set: chapterhead content();
+    string-set: versehead attr(data-book) "\\001F" attr(data-chapter);
     font-size: 0;
     line-height: 0;
     width: 0;
@@ -278,7 +278,7 @@ body {
 }
 
 .footnote {
-    float: footnote;
+    float: footnote page;
     font-size: 6.6pt;
     line-height: 1.08;
     text-align: left;
