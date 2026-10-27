@@ -7,13 +7,35 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup, NavigableString, Tag
 
-from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES
+from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES, FOOTNOTE_CARRY_TO_NEXT_BOOK, BOOK_HEADING_LAYOUT
 from .templates import (
     DOCUMENT_TEMPLATE,
     FRONT_MATTER_TEMPLATE,
     NEW_TESTAMENT_FRONT_MATTER_TEMPLATE,
     PAGE_HEADER_SCRIPT,
 )
+
+
+BOOK_SEPARATOR_SVG = """<svg class="book-separator-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 90" role="presentation" aria-hidden="true">
+<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+<path stroke-width="2.4" d="M22 45H272 M22 49H272 M528 45H778 M528 49H778"/>
+<path stroke-width="3.2" d="M400 47 C375 20 345 25 334 45 C327 61 346 66 354 53 C359 44 349 38 342 44 M400 47 C425 20 455 25 466 45 C473 61 454 66 446 53 C441 44 451 38 458 44"/>
+<path stroke-width="2.7" d="M400 47 C377 60 359 73 330 58 C308 47 297 30 278 43 C267 50 275 61 284 56 C291 52 288 46 282 47 M400 47 C423 60 441 73 470 58 C492 47 503 30 522 43 C533 50 525 61 516 56 C509 52 512 46 518 47"/>
+<path stroke-width="2" d="M393 48 C378 42 371 31 378 20 M407 48 C422 42 429 31 422 20 M389 54 Q377 66 381 75 M411 54 Q423 66 419 75"/>
+</g>
+<g fill="currentColor">
+<path d="M400 8 Q390 25 400 38 Q410 25 400 8Z M400 82 Q390 65 400 52 Q410 65 400 82Z"/>
+<path d="M375 35 Q356 30 358 18 Q368 21 375 35Z M425 35 Q444 30 442 18 Q432 21 425 35Z"/>
+<path d="M369 53 Q348 42 347 30 Q360 34 369 53Z M431 53 Q452 42 453 30 Q440 34 431 53Z"/>
+<path d="M330 58 Q310 69 294 58 Q310 55 330 58Z M470 58 Q490 69 506 58 Q490 55 470 58Z"/>
+<path d="M22 47 Q10 40 8 47 Q10 54 22 47Z M778 47 Q790 40 792 47 Q790 54 778 47Z"/>
+<path d="M29 47 Q17 29 10 34 Q14 45 29 47Z M29 47 Q17 65 10 60 Q14 49 29 47Z M771 47 Q783 29 790 34 Q786 45 771 47Z M771 47 Q783 65 790 60 Q786 49 771 47Z"/>
+<path d="M400 39 l8 8 -8 8 -8 -8Z"/>
+</g></svg>"""
+
+
+def book_separator_html() -> str:
+    return '<div class="book-separator" aria-hidden="true">' + BOOK_SEPARATOR_SVG + '</div>'
 
 
 def clean_spaces(value: str) -> str:
@@ -131,7 +153,8 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     marker = (
         f'<span class="chapter-page-marker" '
         f'data-book="{html.escape(title, quote=True)}" '
-        f'data-chapter="{html.escape(chapter_no, quote=True)}">'
+        f'data-chapter="{html.escape(chapter_no, quote=True)}" '
+        f'data-header="{html.escape(title + "|" + chapter_no, quote=True)}">'
         f"{html.escape(chapter_no)}</span>"
     )
 
@@ -151,7 +174,7 @@ def render_verse(code: str, title: str, chapter_no: str, verse_no: str, text_htm
     )
 
 
-def render_book(book: Tag) -> str:
+def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
     code = book_code(book)
     title = book_title(book)
     note = title_footnote(book)
@@ -163,17 +186,54 @@ def render_book(book: Tag) -> str:
             f'data-note-target="#title-footnote-{html.escape(code, quote=True)}"></sup>'
         )
 
-    output = [
-        f'<section class="print-book" id="print-book-{html.escape(code)}">',
-        f'<div class="running-book-title">{html.escape(title)}</div>',
-        f'<h1 class="book-opening">{opening}.</h1>',
-    ]
+    layout = BOOK_HEADING_LAYOUT.get(code, {})
+    spacing = layout.get("heading_spacing_mm", 0)
+    if isinstance(spacing, bool) or not isinstance(spacing, (int, float)) or not -20 <= spacing <= 40:
+        raise ValueError(f"Invalid heading_spacing_mm for {code}: {spacing!r}")
+    force_page = layout.get("break_before_page", False)
+    if not isinstance(force_page, bool):
+        raise ValueError(f"Invalid break_before_page for {code}: {force_page!r}")
+    separator_previous_page = layout.get("separator_previous_page", False)
+    if not isinstance(separator_previous_page, bool):
+        raise ValueError(f"Invalid separator_previous_page for {code}: {separator_previous_page!r}")
+    if separator_previous_page and first_in_testament:
+        raise ValueError(f"No separator before the first book of a testament: {code}")
 
+    band_style = f' style="margin-top: {spacing:g}mm"' if spacing else ""
+    # In split mode the page break belongs to the TITLE, not the book
+    # container: the separator is allowed to remain on the previous page.
+    book_style = ' style="break-before: page"' if force_page and not separator_previous_page else ""
+    heading_style = ' style="break-before: page"' if separator_previous_page else ""
+
+    output = [
+        f'<section class="print-book" id="print-book-{html.escape(code)}"{book_style}>',
+        f'<div class="running-book-title">{html.escape(title)}</div>',
+    ]
+    if separator_previous_page:
+        output.extend([
+            f'<div class="book-separator-band"{band_style}>',
+            book_separator_html(),
+            '</div>',
+            f'<div class="book-heading-band"{heading_style}>',
+        ])
+    else:
+        output.extend([
+            f'<div class="book-heading-band"{band_style}>',
+            *([] if first_in_testament else [book_separator_html()]),
+        ])
+    output.extend([
+        f'<h1 class="book-opening">{opening}.</h1>',
+        '</div>',
+    ])
+
+    # Anchor the title footnote inside the first verse, not as a standalone
+    # inline element between the full-width heading and the first chapter.
+    pending_title_note = ""
     if note:
         symbol, note_text = note
-        output.append(
+        pending_title_note = (
             f'<span id="title-footnote-{html.escape(code, quote=True)}" '
-            f'class="footnote title-footnote title-footnote-anchor" ' 
+            f'class="footnote title-footnote title-footnote-anchor" '
             f'data-symbol="{html.escape(symbol, quote=True)}">'
             f"{html.escape(note_text)}</span>"
         )
@@ -200,7 +260,15 @@ def render_book(book: Tag) -> str:
                 continue
             if "p" in classes:
                 for verse_no, text_html in split_paragraph_into_verses(child):
-                    output.append(render_verse(code, title, chapter_no, verse_no, text_html))
+                    verse_html = render_verse(code, title, chapter_no, verse_no, text_html)
+                    if pending_title_note:
+                        verse_html = verse_html.replace(
+                            '<span class="verse-text">',
+                            '<span class="verse-text">' + pending_title_note,
+                            1,
+                        )
+                        pending_title_note = ""
+                    output.append(verse_html)
             elif "s" in classes:
                 source_heading = clean_spaces(child.get_text(" ", strip=True))
                 if source_heading:
@@ -208,11 +276,35 @@ def render_book(book: Tag) -> str:
                         f'<div class="source-heading">{html.escape(source_heading)}</div>'
                     )
 
-    if code == "MAL":
-        output.append('<div class="old-testament-end-rule"></div>')
-
     output.append("</section>")
     return "".join(output)
+
+
+def render_testament_books(books: list[Tag]) -> str:
+    rendered = [render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(books)]
+    codes = [book_code(book) for book in books]
+    for source, target in FOOTNOTE_CARRY_TO_NEXT_BOOK.items():
+        if source not in codes or target not in codes:
+            raise ValueError(f"Unknown footnote carry boundary: {source} -> {target}")
+        index = codes.index(source)
+        if index + 1 >= len(codes) or codes[index + 1] != target:
+            raise ValueError(f"Footnote carry requires adjacent books: {source} -> {target}")
+        source_soup = BeautifulSoup(rendered[index], "html.parser")
+        notes = source_soup.select(".footnote:not(.title-footnote)")
+        if not notes:
+            raise ValueError(f"No text footnote to carry from {source}")
+        last = notes[-1]
+        # Move the actual note rather than duplicating it: numbering and count stay intact.
+        carried = str(last).replace('class="footnote"', 'class="footnote carried-footnote"', 1)
+        last.decompose()
+        rendered[index] = str(source_soup)
+        target_soup = BeautifulSoup(rendered[index + 1], "html.parser")
+        first_verse = target_soup.select_one(".verse-line .verse-text")
+        if first_verse is None:
+            raise ValueError(f"No destination verse in {target}")
+        first_verse.insert(0, BeautifulSoup(carried, "html.parser"))
+        rendered[index + 1] = str(target_soup)
+    return "\n".join(rendered)
 
 
 def source_toc_name(soup: BeautifulSoup, code: str, book: Tag) -> str:
@@ -307,9 +399,13 @@ def build_html(source: Path, output: Path, css_path: Path) -> None:
 
     body = (
         render_frontmatter(soup, books)
-        + "\n".join(render_book(book) for book in old_books)
+        + '<div class="print-testament old-testament">'
+        + render_testament_books(old_books)
+        + "</div>"
         + render_new_testament_frontmatter(soup, books)
-        + "\n".join(render_book(book) for book in new_books)
+        + '<div class="print-testament new-testament">'
+        + render_testament_books(new_books)
+        + "</div>"
     )
 
     document = DOCUMENT_TEMPLATE.format(

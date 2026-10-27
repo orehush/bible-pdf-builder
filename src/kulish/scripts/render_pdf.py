@@ -23,6 +23,7 @@ def main() -> None:
             "PrinceXML was not found. Install PrinceXML and make sure `prince` is available in PATH."
         )
 
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     command = [prince, "--javascript", str(args.source), "-o", str(args.output)]
     print("Running:", " ".join(command))
     subprocess.run(command, check=True)
