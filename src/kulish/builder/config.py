@@ -34,3 +34,16 @@ OLD_TESTAMENT_CODES = [
 # book, with a hidden call marker. Leave empty unless PDF inspection confirms
 # the source and destination begin/end on the same physical page.
 FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
+
+# Manual per-book pagination adjustments (book codes such as "MRK", "ROM").
+# heading_spacing_mm changes the space BEFORE the separator + title band.
+# Negative values tighten the gap and may keep the next book on this page;
+# positive values add space and may push the band to the next page.
+# break_before_page forces a new page regardless of available space.
+# Example:
+# BOOK_HEADING_LAYOUT = {
+#     "MRK": {"heading_spacing_mm": -2},
+#     "ROM": {"heading_spacing_mm": 3},
+#     "HEB": {"break_before_page": True},
+# }
+BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {}
