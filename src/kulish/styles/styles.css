@@ -344,10 +344,24 @@ body {
 /* A carried note keeps its reference in the source verse. The number
    follows the relocated footnote's counter, including when multiple
    notes are moved together. */
+.carried-footnote-reference {
+    display: inline;
+    font-size: 0;
+    line-height: 0;
+    vertical-align: baseline;
+    margin: 0;
+    padding: 0;
+}
+
 .carried-footnote-reference::after {
     content: target-counter(attr(data-note-target url), footnote);
+    display: inline;
+    position: relative;
+    top: -.55em;
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
     font-size: 5.5pt;
     font-weight: normal;
-    vertical-align: super;
+    line-height: 0;
+    vertical-align: baseline;
+    margin-left: .2mm;
 }
