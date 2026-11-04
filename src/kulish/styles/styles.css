@@ -340,3 +340,14 @@ body {
 
 /* Carried note is printed in the destination column but has no visible call. */
 .footnote.carried-footnote::footnote-call { content: ""; font-size: 0; margin: 0; padding: 0; }
+
+/* A carried note keeps its reference in the source verse. The number
+   follows the relocated footnote's counter, including when multiple
+   notes are moved together. */
+.carried-footnote-reference::after {
+    content: target-counter(attr(data-note-target url), footnote);
+    font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
+    font-size: 5.5pt;
+    font-weight: normal;
+    vertical-align: super;
+}
