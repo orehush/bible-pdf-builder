@@ -28,12 +28,18 @@ OLD_TESTAMENT_CODES = [
     "HAG","ZEC","MAL",
 ]
 
-# Optional manual footnote placement across book boundaries.
-# Key: source book code. Value: destination book code.
-# Moves the final note of the source book to the beginning of the destination
-# book, with a hidden call marker. Leave empty unless PDF inspection confirms
-# the source and destination begin/end on the same physical page.
-FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str] = {}
+# Move the final N footnotes from a source book into the first column of
+# the immediately following book, while retaining their visible numbered
+# references at the original verses.
+# Rules apply only to the testament containing the source book.
+# Shorthand "ISA": "JER" remains supported (moves one note).
+# Example:
+# FOOTNOTE_CARRY_TO_NEXT_BOOK = {
+#     "ISA": {"target": "JER", "count": 2},
+#     "1CO": {"target": "2CO", "count": 1},
+# }
+# Use only after checking both books' placement in the generated PDF.
+FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str | dict[str, str | int]] = {}
 
 # Manual per-book pagination adjustments (book codes such as "MRK", "ROM").
 # heading_spacing_mm changes the space BEFORE the separator + title band.
