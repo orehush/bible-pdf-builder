@@ -273,28 +273,59 @@ def render_book(book: Tag, *, first_in_testament: bool = False) -> str:
 def render_testament_books(books: list[Tag]) -> str:
     rendered = [render_book(book, first_in_testament=(i == 0)) for i, book in enumerate(books)]
     codes = [book_code(book) for book in books]
-    for source, target in FOOTNOTE_CARRY_TO_NEXT_BOOK.items():
-        if source not in codes or target not in codes:
-            raise ValueError(f"Unknown footnote carry boundary: {source} -> {target}")
+
+    for source, setting in FOOTNOTE_CARRY_TO_NEXT_BOOK.items():
+        # This function is called independently for the Old and New Testaments.
+        # A rule for the other testament must not affect this one.
+        if source not in codes:
+            continue
+
+        if isinstance(setting, str):
+            target, count = setting, 1  # Backwards-compatible shorthand.
+        elif isinstance(setting, dict):
+            target = setting.get("target")
+            count = setting.get("count", 1)
+        else:
+            raise ValueError(f"Invalid footnote carry configuration for {source}: {setting!r}")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+            raise ValueError(f"Invalid footnote carry count for {source}: {count!r}")
+
         index = codes.index(source)
         if index + 1 >= len(codes) or codes[index + 1] != target:
             raise ValueError(f"Footnote carry requires adjacent books: {source} -> {target}")
+
         source_soup = BeautifulSoup(rendered[index], "html.parser")
         notes = source_soup.select(".footnote:not(.title-footnote)")
-        if not notes:
-            raise ValueError(f"No text footnote to carry from {source}")
-        last = notes[-1]
-        # Move the actual note rather than duplicating it: numbering and count stay intact.
-        carried = str(last).replace('class="footnote"', 'class="footnote carried-footnote"', 1)
-        last.decompose()
+        if len(notes) < count:
+            raise ValueError(
+                f"Cannot carry {count} footnotes from {source}: only {len(notes)} available"
+            )
+
+        carried_notes = []
+        for offset, note in enumerate(notes[-count:], start=1):
+            note_id = f"carried-footnote-{source}-{offset}"
+            # Leave a visible reference at the ORIGINAL verse. The real
+            # footnote floats from the next book's first column.
+            marker = source_soup.new_tag("sup")
+            marker["class"] = ["carried-footnote-reference"]
+            marker["data-note-target"] = f"#{note_id}"
+            carried = BeautifulSoup(str(note), "html.parser").select_one(".footnote")
+            carried["id"] = note_id
+            carried["class"] = list(carried.get("class", [])) + ["carried-footnote"]
+            carried_notes.append(carried)
+            note.replace_with(marker)
+
         rendered[index] = str(source_soup)
         target_soup = BeautifulSoup(rendered[index + 1], "html.parser")
         first_verse = target_soup.select_one(".verse-line .verse-text")
         if first_verse is None:
             raise ValueError(f"No destination verse in {target}")
-        first_verse.insert(0, BeautifulSoup(carried, "html.parser"))
+        # Insert all notes in source order to preserve their numbering.
+        for carried in reversed(carried_notes):
+            first_verse.insert(0, carried)
         rendered[index + 1] = str(target_soup)
-    return "\n".join(rendered)
+
+    return "\\n".join(rendered)
 
 
 def source_toc_name(soup: BeautifulSoup, code: str, book: Tag) -> str:
