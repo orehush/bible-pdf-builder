@@ -27,3 +27,37 @@ OLD_TESTAMENT_CODES = [
     "LAM","EZK","DAN","HOS","JOL","AMO","OBA","JON","MIC","NAM","HAB","ZEP",
     "HAG","ZEC","MAL",
 ]
+
+# Move the final N footnotes from a source book into the first column of
+# the immediately following book, while retaining their visible numbered
+# references at the original verses.
+# Rules apply only to the testament containing the source book.
+# Shorthand "ISA": "JER" remains supported (moves one note).
+# Example:
+# FOOTNOTE_CARRY_TO_NEXT_BOOK = {
+#     "ISA": {"target": "JER", "count": 2},
+#     "1CO": {"target": "2CO", "count": 1},
+# }
+# Use only after checking both books' placement in the generated PDF.
+FOOTNOTE_CARRY_TO_NEXT_BOOK: dict[str, str | dict[str, str | int]] = {}
+
+# Manual per-book pagination adjustments (book codes such as "MRK", "ROM").
+# heading_spacing_mm changes the space BEFORE the separator + title band.
+# Negative values tighten the gap and may keep the next book on this page;
+# positive values add space and may push the band to the next page.
+# break_before_page forces a new page regardless of available space.
+# separator_previous_page splits the separator from the heading and forces
+# the heading onto a new page. Use with negative heading_spacing_mm to
+# help the separator fit at the end of the preceding page.
+# hide_separator removes the divider entirely (including its vertical space).
+# It takes precedence over separator_previous_page when both are True.
+# Example:
+# BOOK_HEADING_LAYOUT = {
+#     "MRK": {"heading_spacing_mm": -2},
+#     "ROM": {"heading_spacing_mm": 3},
+#     "HEB": {"break_before_page": True},
+#     "MRK": {"hide_separator": True},
+# }
+BOOK_HEADING_LAYOUT: dict[str, dict[str, float | bool]] = {
+    "JOS": {"hide_separator": True},
+}
