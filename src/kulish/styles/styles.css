@@ -115,7 +115,9 @@ body {
 }
 
 .toc-column {
-    width: calc(50% - {{toc_gap}} / 2);
+    width: 50%;
+    flex: 1;
+    min-width: 0;
     font-size: {{toc_font}};
     line-height: 1.13;
 }
