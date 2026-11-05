@@ -6,7 +6,7 @@ KULISH_HTML_OUTPUT ?= html/kulish_bible_print.html
 KULISH_PDF_OUTPUT ?= pdf/kulish_bible.pdf
 KULISH_PROFILE ?= standard
 
-.PHONY: help kulish-render-html kulish-render-pdf kulish-test-html kulish-test-pdf kulish-test
+.PHONY: help kulish-render-html kulish-render-pdf kulish-test-html kulish-test-pdf kulish-test kulish-render-large-html kulish-render-large-pdf kulish-render-pocket-html kulish-render-pocket-pdf
 
 help:
 	@printf '%s\n' \
