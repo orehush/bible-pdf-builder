@@ -166,7 +166,7 @@ body {
 .print-testament {
     page: main;
     column-count: 2;
-    column-gap: {{toc_gap}};
+    column-gap: {{column_gap}};
     column-rule: {{column_rule}} solid #777;
     column-fill: auto;
 }
