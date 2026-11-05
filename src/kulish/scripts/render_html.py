@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 
 from ..builder.renderer import build_html
+from ..builder.print_profiles import PROFILES
 
 
 def main() -> None:
@@ -17,6 +18,7 @@ def main() -> None:
         default=Path(__file__).resolve().parents[1] / "styles" / "styles.css",
         help="CSS file used for print layout",
     )
+    parser.add_argument("--profile", choices=tuple(PROFILES), default="standard", help="Print size preset")
     args = parser.parse_args()
 
     if not args.source.exists():
@@ -24,7 +26,7 @@ def main() -> None:
     if not args.styles.exists():
         raise SystemExit(f"Styles file not found: {args.styles}")
 
-    build_html(args.source, args.output, args.styles)
+    build_html(args.source, args.output, args.styles, profile=args.profile)
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@
 ├── src/kulish/
 │   ├── builder/
 │   │   ├── config.py           # конфігурація перекладу
+│   │   ├── print_profiles.py    # формати сторінок, поля, шрифти та відступи
 │   │   ├── renderer.py         # перетворення вихідного HTML
 │   │   └── templates.py        # HTML-шаблони
 │   ├── scripts/
@@ -98,3 +99,45 @@ poetry run kulish-render-html path/to/source.html --styles path/to/styles.css -o
 - `src/kulish/builder/renderer.py` — розбір вихідного HTML і побудова друкованої версії.
 - `src/kulish/scripts/` — CLI-команди.
 - `Makefile` — команди та шляхи джерела й результатів для Куліша.
+
+## Формати друку Біблії Куліша
+
+Підтримуються три незалежні профілі, кожен зі своїми HTML і PDF:
+
+| Профіль | Розмір | Внутрішнє / зовнішнє поле | Верхнє / нижнє поле |
+| --- | --- | --- | --- |
+| `standard` | 110 × 180 мм | 10 / 8 мм | 13 / 8 мм |
+| `large` | 165 × 235 мм | 13 / 12 мм | 14 / 14 мм |
+| `pocket-size` | 80 × 130 мм | 8 / 7 мм | 9 / 7 мм |
+
+Для `pocket-size` поля — початкові значення, які можна змінити після пробного друку. Поля `large` відповідають заданим розмірам. Ліві та праві поля дзеркально змінюються на парних/непарних сторінках.
+
+```bash
+make kulish-render-pdf                 # стандартний 110x180
+make kulish-render-large-html
+make kulish-render-large-pdf           # pdf/kulish_bible_large.pdf
+make kulish-render-pocket-html
+make kulish-render-pocket-pdf          # pdf/kulish_bible_pocket.pdf
+```
+
+Використання іншого HTML-файлу джерела:
+
+```bash
+make kulish-render-large-pdf KULISH_SOURCE=sources/bible/another_kulish.html
+make kulish-render-pocket-pdf KULISH_SOURCE=sources/bible/another_kulish.html
+```
+
+Джерело має зберігати структуру книг/розділів, яку підтримує наявний рендерер (наприклад, `section.book`, `.chapter`, `.verse`). Зміна джерела не змінює конфігурацію профілю.
+
+Для ручного вибору формату через CLI:
+
+```bash
+poetry run kulish-render-html sources/bible/kulish_pulyuj_1905_corrected.html --profile large --output html/custom_large.html
+```
+
+**Централізовані налаштування** знаходяться в `src/kulish/builder/print_profiles.py`:
+- `PROFILES`: розміри сторінки, внутрішні/зовнішні та верхні/нижні поля, базовий шрифт і міжрядковий інтервал;
+- `BASE_STYLES`: спільні розміри заголовків, приміток, відступів, колонок, декоративного розмежовувача тощо;
+- `overrides`: значення, які відрізняються для `large` та `pocket-size`.
+
+У `styles.css` значення підставляються через маркери на кшталт `{{page_width}}`, `{{body_font}}`, `{{column_gap}}` під час генерації HTML. Це забезпечує коректні розміри навіть усередині правил PrinceXML `@page`. Не передавайте файл CSS безпосередньо до PrinceXML без генерації HTML.

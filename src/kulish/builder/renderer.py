@@ -8,6 +8,7 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 from .config import FOOTNOTE_SYMBOL_RE, OLD_TESTAMENT_CODES, TITLE_OVERRIDES, FOOTNOTE_CARRY_TO_NEXT_BOOK, BOOK_HEADING_LAYOUT
+from .print_profiles import css_values
 from .templates import (
     DOCUMENT_TEMPLATE,
     FRONT_MATTER_TEMPLATE,
@@ -389,9 +390,15 @@ def render_new_testament_frontmatter(soup: BeautifulSoup, books: list[Tag]) -> s
     return NEW_TESTAMENT_FRONT_MATTER_TEMPLATE.format(toc=toc)
 
 
-def css_with_absolute_resources(css_path: Path) -> str:
+def css_with_absolute_resources(css_path: Path, profile: str = "standard") -> str:
     """Resolve relative CSS url() resources against the stylesheet location."""
     css = css_path.read_text(encoding="utf-8")
+    values = css_values(profile)
+    for key, value in values.items():
+        css = css.replace("{{" + key + "}}", value)
+    unresolved = re.findall(r"\\{\\{[a-z_]+\\}\\}", css)
+    if unresolved:
+        raise ValueError(f"Undefined print style variables: {sorted(set(unresolved))}")
     base_url = css_path.resolve().as_uri()
 
     def resolve_url(match: re.Match[str]) -> str:
@@ -411,7 +418,7 @@ def css_with_absolute_resources(css_path: Path) -> str:
     )
 
 
-def build_html(source: Path, output: Path, css_path: Path) -> None:
+def build_html(source: Path, output: Path, css_path: Path, profile: str = "standard") -> None:
     soup = BeautifulSoup(source.read_text(encoding="utf-8"), "html.parser")
     books = soup.select("section.book")
 
@@ -430,10 +437,11 @@ def build_html(source: Path, output: Path, css_path: Path) -> None:
     )
 
     document = DOCUMENT_TEMPLATE.format(
-        css=css_with_absolute_resources(css_path),
+        css=css_with_absolute_resources(css_path, profile),
         javascript=PAGE_HEADER_SCRIPT,
         body=body,
     )
+    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(document, encoding="utf-8")
 
     print(f"Created: {output}")
