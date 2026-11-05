@@ -1,6 +1,6 @@
 @page frontmatter {
-    size: 110mm 180mm;
-    margin: 13mm 10mm 8mm 10mm;
+    size: {{page_width}} {{page_height}};
+    margin: {{front_top}} {{front_right}} {{front_bottom}} {{front_left}};
     @top-left { content: normal; }
     @top-center { content: normal; }
     @top-right { content: normal; }
@@ -10,52 +10,52 @@
 }
 
 @page main {
-    size: 110mm 180mm;
-    margin-top: 13mm;
-    margin-bottom: 8mm;
-    margin-left: 8.5mm;
-    margin-right: 8.5mm;
+    size: {{page_width}} {{page_height}};
+    margin-top: {{page_top}};
+    margin-bottom: {{page_bottom}};
+    margin-left: {{page_inner}};
+    margin-right: {{page_outer}};
 
     counter-reset: footnote 0;
 
     @top-center {
         content: prince-script(page_header, string(versehead, first), string(versehead, last));
         font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-        font-size: 6.8pt;
+        font-size: {{header_font}};
         letter-spacing: .02em;
-        padding-top: 6mm;
+        padding-top: {{header_padding}};
     }
 
     @footnote {
-        border-top: .35pt solid #555;
-        margin-top: 2.2mm;
-        padding-top: 1.6mm;
-        margin-left: 3mm;
-        margin-right: 3mm;
+        border-top: {{footnote_rule}} solid #555;
+        margin-top: {{footnote_margin_top}};
+        padding-top: {{footnote_padding_top}};
+        margin-left: {{footnote_side_margin}};
+        margin-right: {{footnote_side_margin}};
     }
 }
 
 @page main:left {
-    margin-left: 10mm;
-    margin-right: 8mm;
+    margin-left: {{page_inner}};
+    margin-right: {{page_outer}};
     @top-left {
         content: counter(page);
         font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-        font-size: 6.8pt;
-        padding-top: 6mm;
+        font-size: {{header_font}};
+        padding-top: {{header_padding}};
     }
     @bottom-left { content: none; }
     @bottom-right { content: none; }
 }
 
 @page main:right {
-    margin-left: 8mm;
-    margin-right: 10mm;
+    margin-left: {{page_outer}};
+    margin-right: {{page_inner}};
     @top-right {
         content: counter(page);
         font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-        font-size: 6.8pt;
-        padding-top: 6mm;
+        font-size: {{header_font}};
+        padding-top: {{header_padding}};
     }
     @bottom-left { content: none; }
     @bottom-right { content: none; }
@@ -72,8 +72,8 @@ html, body { margin: 0; padding: 0; }
 
 body {
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-    font-size: 7.5pt;
-    line-height: 1.10;
+    font-size: {{body_font}};
+    line-height: {{body_line}};
     color: #111;
     hyphens: auto;
 }
@@ -81,7 +81,7 @@ body {
 .front-page {
     page: frontmatter;
     box-sizing: border-box;
-    height: 151mm;
+    height: {{front_height}};
     break-after: page;
 }
 
@@ -91,42 +91,42 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size: 18pt;
-    line-height: 1.35;
+    font-size: {{front_title_font}};
+    line-height: {{front_title_line}};
     font-weight: 600;
     text-transform: uppercase;
 }
 
-.front-toc-page { padding-top: 1mm; }
+.front-toc-page { padding-top: {{front_toc_top}}; }
 
 .front-toc-title {
     text-align: center;
-    font-size: 11pt;
+    font-size: {{toc_title_font}};
     line-height: 1.1;
     font-weight: 600;
-    margin: 0 0 3mm;
+    margin: 0 0 {{toc_title_bottom}};
     text-transform: uppercase;
 }
 
 .toc-columns {
     display: flex;
-    gap: 4mm;
+    gap: {{toc_gap}};
     align-items: flex-start;
 }
 
 .toc-column {
-    width: calc(50% - 2mm);
-    font-size: 5.9pt;
+    width: calc(50% - {{toc_gap}} / 2);
+    font-size: {{toc_font}};
     line-height: 1.13;
 }
 
 .toc-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 8mm 8mm;
-    column-gap: 1.2mm;
+    grid-template-columns: minmax(0, 1fr) {{toc_number_width}} {{toc_number_width}};
+    column-gap: {{toc_column_gap}};
     align-items: baseline;
     break-inside: avoid;
-    margin: 0 0 .65mm;
+    margin: 0 0 {{toc_row_gap}};
 }
 
 .toc-header {
@@ -164,8 +164,8 @@ body {
 .print-testament {
     page: main;
     column-count: 2;
-    column-gap: 4mm;
-    column-rule: .35pt solid #777;
+    column-gap: {{toc_gap}};
+    column-rule: {{column_rule}} solid #777;
     column-fill: auto;
 }
 
@@ -189,7 +189,7 @@ body {
 
 .book-separator {
     margin: 2mm 4mm 1mm;
-    height: 6mm;
+    height: {{separator_height}};
     text-align: center;
     color: #333;
     break-inside: avoid;
@@ -198,9 +198,9 @@ body {
 
 .book-separator-art {
     display: block;
-    width: 76mm;
+    width: {{separator_width}};
     max-width: 100%;
-    height: 6mm;
+    height: {{separator_height}};
     margin: 0 auto;
 }
 
@@ -214,10 +214,10 @@ body {
 
 .book-opening {
     text-align: center;
-    font-size: 12pt;
+    font-size: {{book_title_font}};
     line-height: 1.1;
     font-weight: 600;
-    margin: 0 0 4mm;
+    margin: 0 0 {{book_title_bottom}};
     break-after: avoid;
 }
 
@@ -231,7 +231,7 @@ body {
 
 .chapter-start {
     display: block;
-    margin: 2mm 0 1.2mm;
+    margin: {{chapter_top}} 0 {{chapter_bottom}};
     break-after: avoid;
 }
 
@@ -239,7 +239,7 @@ body {
     display: block;
     text-align: center;
     font-weight: 600;
-    font-size: 8.5pt;
+    font-size: {{chapter_font}};
     line-height: 1.05;
     text-transform: uppercase;
 }
@@ -255,7 +255,7 @@ body {
 
 .verse-line {
     display: block;
-    margin: 0 0 .2mm 0;
+    margin: 0 0 {{verse_bottom}} 0;
     padding: 0;
     text-align: justify;
     text-align-last: left;
@@ -265,9 +265,9 @@ body {
 .verse-no {
     display: inline-block;
     /*min-width: 3.1mm;*/
-    padding-left: 1.5mm;
-    padding-right: .8mm;
-    font-size: 8pt;
+    padding-left: {{verse_indent}};
+    padding-right: {{verse_number_gap}};
+    font-size: {{verse_font}};
     line-height: 1;
     font-weight: 400;
     vertical-align: baseline;
@@ -278,10 +278,10 @@ body {
 
 .dropcap {
     float: left;
-    font-size: 20.5pt;
-    line-height: 15pt;
+    font-size: {{dropcap_font}};
+    line-height: {{dropcap_line}};
     font-weight: 600;
-    margin: .2mm .65mm 0 0;
+    margin: .2mm {{dropcap_gap}} 0 0;
     padding: 0;
 }
 
@@ -290,7 +290,7 @@ body {
 .source-heading {
     display: block;
     text-align: center;
-    font-size: 7pt;
+    font-size: {{source_heading_font}};
     font-style: italic;
     line-height: 1.1;
     margin: 2mm 1mm 0;
@@ -299,8 +299,8 @@ body {
 
 .footnote {
     float: footnote;
-    font-size: 6.6pt;
-    line-height: 1.08;
+    font-size: {{footnote_font}};
+    line-height: {{footnote_line}};
     text-align: left;
     font-weight: normal;
 }
@@ -325,7 +325,7 @@ body {
 .footnote::footnote-call {
     content: counter(footnote);
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-    font-size: 5.5pt;
+    font-size: {{footnote_call_font}};
     line-height: 0;
     vertical-align: super;
     margin-left: .2mm;
@@ -359,7 +359,7 @@ body {
     position: relative;
     top: -.55em;
     font-family: "Gentium Book Plus", "Gentium Plus", Georgia, serif;
-    font-size: 5.5pt;
+    font-size: {{footnote_call_font}};
     font-weight: normal;
     line-height: 0;
     vertical-align: baseline;
