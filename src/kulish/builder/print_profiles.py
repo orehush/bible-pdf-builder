@@ -47,7 +47,7 @@ BASE_STYLES: dict[str, str] = {
 PROFILES: dict[str, PrintProfile] = {
     "standard": PrintProfile(
         110, 180, 10, 8, 13, 8, 7.5, 1.10,
-        {"front_top": "13mm", "front_right": "10mm", "front_bottom": "8mm", "front_left": "10mm"},
+        {"front_top": "13mm", "front_right": "10mm", "front_bottom": "8mm", "front_left": "10mm", "front_height": "151mm"},
     ),
     "large": PrintProfile(
         165, 235, 13, 12, 14, 14, 10.5, 1.14,
@@ -94,6 +94,8 @@ def css_values(profile_name: str) -> dict[str, str]:
         "body_line": f"{p.line_height:g}",
         "front_height": f"{p.height_mm - p.top_mm - p.bottom_mm:g}mm",
     })
+    # Profile-specific values take precedence over derived defaults.
+    values.update(p.overrides)
     # Front matter uses symmetric margins, independent of page parity.
     if profile_name != "standard":
         values.update({
